@@ -8,11 +8,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import simba.chatae2.config.BindData;
 
 import java.util.OptionalLong;
 
 import static simba.chatae2.command.CommandEvent.BIND_KEY;
+import static simba.chatae2.config.BindData.BindInstance;
 
 public class BindCommand {
 
@@ -24,7 +24,7 @@ public class BindCommand {
             if (item instanceof WirelessTerminalItem) {
                 OptionalLong grid = ((WirelessTerminalItem)item).getGridKey(itemStack);
                 if (grid.isPresent()) {
-                    BindData.Bind(context.getArgument(BIND_KEY, String.class),
+                    BindInstance.Bind(context.getArgument(BIND_KEY, String.class),
                             grid.getAsLong());
                     return 1;
                 }

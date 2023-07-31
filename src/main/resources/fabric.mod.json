@@ -34,6 +34,5 @@
     "ae2": ">=12.7"
   },
   "suggests": {
-    "another-mod": "*"
   }
 }

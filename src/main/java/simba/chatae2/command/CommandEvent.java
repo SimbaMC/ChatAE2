@@ -4,6 +4,7 @@ package simba.chatae2.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
+
 import static net.minecraft.server.command.CommandManager.literal;
 import static net.minecraft.server.command.CommandManager.argument;
 
@@ -14,17 +15,21 @@ public class CommandEvent {
         dispatcher.register(
             literal("chatae2")
                 .then(argument( BIND_KEY,
-                        StringArgumentType.string())
-                    .then( literal("query")
-                            .executes(QueryCommand::QueryExecute)
-                            .then(literal("cpu")
-                                    .executes(QueryCommand::QueryCPUExecute)
-                            )
+                    StringArgumentType.string())
+                .then(literal("query")
+                    .executes(QueryCommand::QueryExecute)
+                    .then(literal("cpu")
+                            .executes(QueryCommand::QueryCPUExecute)
                     )
-                    .then( literal("bind")
-                            .executes(BindCommand::BindExecute))
-                    )
+                )
+                .then(literal("bind")
+                    .executes(BindCommand::BindExecute))
+                )
+                .then(literal("list").requires(source -> source.hasPermissionLevel(2))
+                    .executes(ListCommand::ListExecute)
+                )
         );
     }
+
 }
 

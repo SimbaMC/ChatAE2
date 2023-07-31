@@ -8,18 +8,17 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.Nullable;
-import simba.chatae2.config.BindData;
-
 import java.util.OptionalLong;
 
 import static appeng.api.features.Locatables.securityStations;
 import static net.minecraft.text.Text.literal;
 import static simba.chatae2.command.CommandEvent.BIND_KEY;
+import static simba.chatae2.config.BindData.BindInstance;
 
 public class QueryCommand {
 
     private static @Nullable IGrid getGridFromContext(CommandContext<ServerCommandSource> context) {
-        OptionalLong GridKey = BindData.Query(context.getArgument(BIND_KEY, String.class));
+        OptionalLong GridKey = BindInstance.Query(context.getArgument(BIND_KEY, String.class));
         if(GridKey.isPresent()) {
             long key = GridKey.getAsLong();
             IActionHost securityStation = securityStations().get(context.getSource().getWorld(), key);
@@ -31,7 +30,7 @@ public class QueryCommand {
     public static int QueryExecute(CommandContext<ServerCommandSource> context) {
         IGrid grid = getGridFromContext(context);
         if (grid != null) {
-            context.getSource().sendFeedback(literal(String.valueOf(grid.size())), false);
+            context.getSource().sendFeedback(literal("Grid size:" + grid.size()), false);
             return 0;
         } else {
             return 1;
@@ -44,12 +43,13 @@ public class QueryCommand {
         if (grid != null) {
             ImmutableSet<ICraftingCPU> cpus = grid.getCraftingService().getCpus();
             for (ICraftingCPU cpu : cpus) {
-                commandSource.sendFeedback(literal(String.valueOf(cpu.getAvailableStorage())), false);
+                String Feedback = "CPU Size:" + cpu.getAvailableStorage();
                 if(cpu.isBusy()) {
-                    commandSource.sendFeedback(literal(cpu.getJobStatus().crafting().what().getDisplayName().getString()), false);
+                    Feedback += "; Crafting:" + cpu.getJobStatus().crafting().what().getDisplayName().getString();
                 } else {
-                    commandSource.sendFeedback(literal("CPU is idle"), false);
+                    Feedback += "is idle";
                 }
+                commandSource.sendFeedback(literal(Feedback), false);
             }
             return 0;
         } else {
