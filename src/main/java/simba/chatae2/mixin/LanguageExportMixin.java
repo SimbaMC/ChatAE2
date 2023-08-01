@@ -18,10 +18,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-@Mixin(Language.class)
+@Mixin(value = Language.class, priority = 800)
 public class LanguageExportMixin {
 
-    @Inject(method = "setInstance", at = @At("TAIL"))
+    @Inject(method = "setInstance", at = @At("HEAD"))
     private static void copyInstance(Language language, CallbackInfo ci) {
         Map<String, String> translation = ((TranslationStorageInterface)language).getStorage();
         String currentLanguageCode = MinecraftClient.getInstance().getLanguageManager().getLanguage().getCode();
