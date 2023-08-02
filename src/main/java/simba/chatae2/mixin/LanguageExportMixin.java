@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.google.gson.Gson;
 import simba.chatae2.ChatAE2;
-import simba.chatae2.TranslationStorageInterface;
+import simba.chatae2.mixinInterface.TranslationStorageInterface;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

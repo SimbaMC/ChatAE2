@@ -14,7 +14,8 @@ public class ListCommand {
         for(Map.Entry<String, Long> entry : BindInstance.Binding.entrySet()) {
             context.getSource().sendFeedback(literal(
                     entry.getKey() + " " +
-                    entry.getValue()), false);
+                    entry.getValue() + " " +
+                    BindInstance.Bind_Language.get(entry.getKey())), false);
         }
         return 0;
     }

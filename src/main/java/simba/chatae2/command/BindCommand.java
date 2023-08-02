@@ -26,9 +26,11 @@ public class BindCommand {
                 if (grid.isPresent()) {
                     BindInstance.Bind(context.getArgument(BIND_KEY, String.class),
                             grid.getAsLong());
+                    context.getSource().sendFeedback(Text.translatable("chat.chatae2.bind.success"), false);
                     return 1;
                 }
             }
+            context.getSource().sendFeedback(Text.translatable("chat.chatae2.bind.failed"), false);
             return 0;
         } else {
             context.getSource().sendFeedback(Text.literal("Cannot Execute from console"), false);

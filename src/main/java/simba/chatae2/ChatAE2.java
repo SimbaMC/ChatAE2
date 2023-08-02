@@ -10,26 +10,22 @@ import org.slf4j.LoggerFactory;
 import simba.chatae2.command.CommandEvent;
 import simba.chatae2.config.BindData;
 import simba.chatae2.config.Config;
+import simba.chatae2.config.I18n;
 
 public class ChatAE2 implements ModInitializer {
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
+
 	public static final String MODID = "CHAT_AE2";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
 
+	public static Config config;
 	@Override
 	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
+		config = Config.onStart();
 
-		// LOGGER.info("Hello Fabric world!");
-		Config.onStart();
 		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
 
 		ServerLifecycleEvents.SERVER_STARTED.register( server -> {
-			// You can see we use the function getServer() that's on the player.
+			I18n.Initial();
 			BindData.BindInstance = BindData.getServerState(server);
 		});
 
@@ -38,6 +34,5 @@ public class ChatAE2 implements ModInitializer {
 	}
 
 	public void onServerStopping(MinecraftServer server) {
-		Config.onStop();
 	}
 }

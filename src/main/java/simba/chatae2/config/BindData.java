@@ -15,11 +15,16 @@ import java.util.OptionalLong;
 public class BindData extends PersistentState {
 
     public Map<String, Long> Binding;
+    public Map<String, String> Bind_Language;
+
+    private static final String NBT_BIND_KEY = "BIND";
+    private static final String NBT_LANG_KEY = "LANG";
 
     public static BindData BindInstance;
 
     public BindData() {
         Binding = new HashMap<String, Long>();
+        Bind_Language = new HashMap<String, String>();
     }
 
     public static BindData getServerState(MinecraftServer server) {
@@ -36,7 +41,21 @@ public class BindData extends PersistentState {
 
     public void Bind(String BindKey, Long GridKey) {
         this.Binding.put(BindKey, GridKey);
+        if(!this.Bind_Language.containsKey(BindKey)) {
+            this.Bind_Language.put(BindKey, ChatAE2.config.getGLOBAL_LANGUAGE());
+        }
         this.markDirty();
+    }
+
+    public boolean Unbind(String BindKey) {
+        if(this.Binding.containsKey(BindKey) || this.Bind_Language.containsKey(BindKey)) {
+            this.Binding.remove(BindKey);
+            this.Bind_Language.remove(BindKey);
+            this.markDirty();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public OptionalLong Query(String BindKey) {
@@ -47,19 +66,43 @@ public class BindData extends PersistentState {
         }
     }
 
+    public String getLangOrDefault(String BindKey) {
+        if (this.Bind_Language.containsKey(BindKey)) {
+            return this.Bind_Language.get(BindKey);
+        } else {
+            return ChatAE2.config.getGLOBAL_LANGUAGE();
+        }
+    }
+
     public static BindData createFromNbt(NbtCompound tag) {
         BindData bindData = new BindData();
-        for (String nbtKey : tag.getKeys()) {
-            bindData.Binding.put(nbtKey, tag.getLong(nbtKey));
+        if (tag.contains(NBT_BIND_KEY)) {
+            NbtCompound Bind = tag.getCompound(NBT_BIND_KEY);
+            for (String nbtKey : Bind.getKeys()) {
+                bindData.Binding.put(nbtKey, Bind.getLong(nbtKey));
+            }
+        }
+        if (tag.contains(NBT_LANG_KEY)) {
+            NbtCompound Lang = tag.getCompound(NBT_LANG_KEY);
+            for (String nbtKey : Lang.getKeys()) {
+                bindData.Bind_Language.put(nbtKey, Lang.getString(nbtKey));
+            }
         }
         return bindData;
     }
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
+        NbtCompound Bind = new NbtCompound();
         for(Map.Entry<String, Long> entry : Binding.entrySet()) {
-            nbt.putLong(entry.getKey(), entry.getValue());
+            Bind.putLong(entry.getKey(), entry.getValue());
         }
+        NbtCompound Lang = new NbtCompound();
+        for(Map.Entry<String, String> entry : Bind_Language.entrySet()) {
+            Lang.putString(entry.getKey(), entry.getValue());
+        }
+        nbt.put(NBT_BIND_KEY, Bind);
+        nbt.put(NBT_LANG_KEY, Lang);
         return nbt;
     }
 }
