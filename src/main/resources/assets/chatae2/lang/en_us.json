@@ -1,11 +1,14 @@
 {
-  "chat.chatae2.cpu.crafting": "CPU %s is crafting %s",
+  "chat.chatae2.cpu.crafting": "CPU %s is crafting %s (%s/%s)",
   "chat.chatae2.cpu.idle": "CPU %s is idle",
   "chat.chatae2.grid.size": "Grid size is %s",
-  "chat.chatae2.grid.failed": "Grid unloaded not exists",
+  "chat.chatae2.grid.failed": "Grid unloaded or not exists",
   "chat.chatae2.bind.success": "Binding successful",
   "chat.chatae2.bind.failed": "Binding failed",
   "chat.chatae2.bind.needplayer": "Binding needs a player hold the WirelessTerminal",
   "chat.chatae2.unbind.success": "Unbinding successful",
-  "chat.chatae2.unbind.failed": "Unbinding failed"
+  "chat.chatae2.unbind.failed": "Unbinding failed",
+  "chat.chatae2.search.stored": "%s exist %s",
+  "chat.chatae2.search.craftable": "%s craftable",
+  "chat.chatae2.search.stored_craftable": "%s exist %s, craftable"
 }

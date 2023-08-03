@@ -1,5 +1,5 @@
 {
-  "chat.chatae2.cpu.crafting": "CPU %s正在合成%s",
+  "chat.chatae2.cpu.crafting": "CPU %s正在合成%s (%s/%s)",
   "chat.chatae2.cpu.idle": "CPU %s空闲",
   "chat.chatae2.grid.size": "网络大小%s",
   "chat.chatae2.grid.failed": "网络未加载或不存在",
@@ -7,5 +7,8 @@
   "chat.chatae2.bind.failed": "绑定失败",
   "chat.chatae2.bind.needplayer": "需要一个玩家手持无线终端来绑定",
   "chat.chatae2.unbind.success": "解绑成功",
-  "chat.chatae2.unbind.failed": "解绑失败"
+  "chat.chatae2.unbind.failed": "解绑失败",
+  "chat.chatae2.search.stored": "%s 现存%s",
+  "chat.chatae2.search.craftable": "%s 可合成",
+  "chat.chatae2.search.stored_craftable": "%s 现存%s,可合成"
 }

@@ -28,13 +28,19 @@ public class I18n {
         };
         try {
             File[] filesList = LanguagePath.listFiles(jsonFilter);
+            if (filesList == null) {
+                ChatAE2.LOGGER.info("ChatAE2 has no language file");
+                return;
+            }
             for (File langFile: filesList) {
+                ChatAE2.LOGGER.info("ChatAE2 is loading {}", langFile.getName());
                 BufferedReader reader =  new BufferedReader(new FileReader(langFile, StandardCharsets.UTF_8));
                 Gson gson = new Gson();
                 TypeToken<Map<String, String>> typeToken = new TypeToken<Map<String, String>>() {};
                 I18n i18n = new I18n();
                 i18n.translation = gson.fromJson(reader, typeToken.getType());
                 reader.close();
+                ChatAE2.LOGGER.info("ChatAE2 loaded {} contents from {}", i18n.translation.size(), langFile.getName());
                 I18N_INSTANCE.put(langFile.getName().toLowerCase().replace(".json" ,""), i18n);
             }
         } catch (IOException e) {
@@ -54,6 +60,10 @@ public class I18n {
                 return I18N_INSTANCE.get(lang).translation.get(key);
             }
         }
+        ChatAE2.LOGGER.info("Failed to translate AEKey \"{}\" in {}",
+                aeKey.getDisplayName().getContent().toString(),
+                lang
+        );
         return aeKey.getDisplayName().getString();
     }
 
@@ -64,6 +74,9 @@ public class I18n {
                 return I18N_INSTANCE.get(lang).translation.get(key);
             }
         }
+        ChatAE2.LOGGER.info("Failed to translate Key \"{}\" in {}",
+                key, lang
+        );
         return key;
     }
 

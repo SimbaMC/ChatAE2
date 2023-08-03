@@ -2,32 +2,18 @@
 package simba.chatae2.command;
 
 import appeng.api.networking.IGrid;
+import appeng.api.networking.crafting.CraftingJobStatus;
 import appeng.api.networking.crafting.ICraftingCPU;
-import appeng.api.networking.security.IActionHost;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.Nullable;
 import simba.chatae2.config.I18n;
 
-import java.util.OptionalLong;
-
-import static appeng.api.features.Locatables.securityStations;
 import static simba.chatae2.command.CommandEvent.BIND_KEY;
-import static simba.chatae2.config.BindData.BindInstance;
+import static simba.chatae2.command.CommandEvent.getGridFromContext;
 
 public class QueryCommand {
-
-    private static @Nullable IGrid getGridFromContext(CommandContext<ServerCommandSource> context) {
-        OptionalLong GridKey = BindInstance.Query(context.getArgument(BIND_KEY, String.class));
-        if(GridKey.isPresent()) {
-            long key = GridKey.getAsLong();
-            IActionHost securityStation = securityStations().get(context.getSource().getWorld(), key);
-            return securityStation.getActionableNode().getGrid();
-        }
-        return null;
-    }
 
     public static int QueryExecute(CommandContext<ServerCommandSource> context) {
         IGrid grid = getGridFromContext(context);
@@ -53,11 +39,15 @@ public class QueryCommand {
             ImmutableSet<ICraftingCPU> cpus = grid.getCraftingService().getCpus();
             for (ICraftingCPU cpu : cpus) {
                 if(cpu.isBusy()) {
+                    CraftingJobStatus job = cpu.getJobStatus();
+                    assert (job != null);
                     commandSource.sendFeedback(
                             Text.literal( String.format(
                                     I18n.Translate(bindKey, "chat.chatae2.cpu.crafting"),
                                     I18n.readableSize(cpu.getAvailableStorage()),
-                                    I18n.Translate(bindKey, cpu.getJobStatus().crafting().what())
+                                    I18n.Translate(bindKey, job.crafting().what()),
+                                    I18n.readableSize(job.progress()),
+                                    I18n.readableSize(job.totalItems())
                             ))
                             , false);
                 } else {
