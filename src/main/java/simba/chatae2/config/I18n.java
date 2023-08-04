@@ -32,7 +32,7 @@ public class I18n {
         try {
             File[] filesList = LanguagePath.listFiles(jsonFilter);
             if (filesList == null) {
-                ChatAE2.LOGGER.info("ChatAE2 has no language file");
+                ChatAE2.LOGGER.warn("ChatAE2 has no language file");
                 return;
             }
             for (File langFile: filesList) {
@@ -51,7 +51,7 @@ public class I18n {
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
             String stackTraceString = stringWriter.toString();
-            ChatAE2.LOGGER.info(stackTraceString);
+            ChatAE2.LOGGER.warn(stackTraceString);
         }
     }
 
@@ -72,7 +72,7 @@ public class I18n {
                 }
             }
         } catch ( Exception e ) {
-            ChatAE2.LOGGER.info("Failed to translate AEKey \"{}\" in {}, using {}",
+            ChatAE2.LOGGER.warn("Failed to translate AEKey \"{}\" in {}, using {}",
                     aeKey.getDisplayName().toString(),
                     lang,
                     aeKey.getDisplayName().getString()
@@ -88,7 +88,7 @@ public class I18n {
                 return I18N_INSTANCE.get(lang).translation.get(key);
             }
         }
-        ChatAE2.LOGGER.info("Failed to translate Key \"{}\" in {}",
+        ChatAE2.LOGGER.warn("Failed to translate Key \"{}\" in {}",
                 key, lang
         );
         return key;

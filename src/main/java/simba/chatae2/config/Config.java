@@ -48,7 +48,7 @@ public class Config {
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
             String stackTraceString = stringWriter.toString();
-            ChatAE2.LOGGER.info(stackTraceString);
+            ChatAE2.LOGGER.warn(stackTraceString);
             Config config = new Config();
             config.save();
             return config;
@@ -69,7 +69,7 @@ public class Config {
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
             String stackTraceString = stringWriter.toString();
-            ChatAE2.LOGGER.info(stackTraceString);
+            ChatAE2.LOGGER.warn(stackTraceString);
         }
     }
 
