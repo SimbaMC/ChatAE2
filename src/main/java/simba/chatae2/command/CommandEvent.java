@@ -47,7 +47,7 @@ public class CommandEvent {
                     )
                     .then(literal("search")
                             .then(argument( SEARCH_KEY,
-                                    StringArgumentType.string())
+                                    StringArgumentType.greedyString())
                             .executes(SearchCommand::SearchExecute)
                             )
                     )

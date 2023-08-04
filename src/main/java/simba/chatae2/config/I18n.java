@@ -5,6 +5,9 @@ import appeng.api.stacks.AEKey;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.text.LiteralTextContent;
+import net.minecraft.text.TextContent;
+import net.minecraft.text.TranslatableTextContent;
 import simba.chatae2.ChatAE2;
 import simba.chatae2.mixinInterface.TranslatableTextContentInterface;
 
@@ -54,16 +57,27 @@ public class I18n {
 
     public static String Translate(String BindKey, AEKey aeKey) {
         String lang = BindData.BindInstance.getLangOrDefault(BindKey);
-        if (I18N_INSTANCE.containsKey(lang)) {
-            String key = ((TranslatableTextContentInterface) (aeKey.getDisplayName().getContent())).getKey();
-            if (I18N_INSTANCE.get(lang).translation.containsKey(key)) {
-                return I18N_INSTANCE.get(lang).translation.get(key);
+        try {
+            if (I18N_INSTANCE.containsKey(lang)) {
+                TextContent displayName = aeKey.getDisplayName().getContent();
+                if (displayName instanceof TranslatableTextContent) {
+                    String key = ((TranslatableTextContentInterface) (aeKey.getDisplayName().getContent())).getKey();
+                    if (I18N_INSTANCE.get(lang).translation.containsKey(key)) {
+                        return I18N_INSTANCE.get(lang).translation.get(key);
+                    }
+                }
+                if (displayName instanceof LiteralTextContent) {
+                    String key = ((LiteralTextContent) displayName).string();
+                    return I18N_INSTANCE.get(lang).translation.getOrDefault(key, key);
+                }
             }
+        } catch ( Exception e ) {
+            ChatAE2.LOGGER.info("Failed to translate AEKey \"{}\" in {}, using {}",
+                    aeKey.getDisplayName().toString(),
+                    lang,
+                    aeKey.getDisplayName().getString()
+            );
         }
-        ChatAE2.LOGGER.info("Failed to translate AEKey \"{}\" in {}",
-                aeKey.getDisplayName().getContent().toString(),
-                lang
-        );
         return aeKey.getDisplayName().getString();
     }
 
