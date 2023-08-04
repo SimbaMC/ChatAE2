@@ -24,6 +24,16 @@ public class Config {
 
     public String GLOBAL_LANGUAGE = "en_us";
 
+    public int getMAX_SEARCH_KEY() {
+        return MAX_SEARCH_KEY;
+    }
+
+    public void setMAX_SEARCH_KEY(int MAX_SEARCH_KEY) {
+        this.MAX_SEARCH_KEY = MAX_SEARCH_KEY;
+    }
+
+    public int MAX_SEARCH_KEY = 10;
+
     public static Config onStart() {
         Path LanguagePath = FabricLoader.getInstance().getConfigDir().resolve("chatae2/chatae2.json");
         try {

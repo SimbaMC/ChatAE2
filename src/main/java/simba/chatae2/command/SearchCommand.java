@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static appeng.api.stacks.AmountFormat.SLOT;
+import static simba.chatae2.ChatAE2.config;
 import static simba.chatae2.command.CommandEvent.*;
 
 public class SearchCommand {
@@ -59,9 +60,22 @@ public class SearchCommand {
                     )
             );
         }
+        int match = 0;
         for (String name: storedName) {
+            if( (match ++) >= config.getMAX_SEARCH_KEY() ){
+                commandSource.sendFeedback(Text.literal(String.format(
+                        I18n.Translate(bindKey, "chat.chatae2.search.toomore"),
+                        storedName.size()
+                )), false);
+                return storedName.size();
+            }
             commandSource.sendFeedback(Text.literal(name), false);
         }
-        return 0;
+        if (match == 0) {
+            commandSource.sendFeedback(Text.literal(
+                    I18n.Translate(bindKey, "chat.chatae2.search.nothing")
+            ), false);
+        }
+        return match;
     }
 }

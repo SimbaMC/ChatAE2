@@ -10,5 +10,7 @@
   "chat.chatae2.unbind.failed": "Unbinding failed",
   "chat.chatae2.search.stored": "%s exist %s",
   "chat.chatae2.search.craftable": "%s craftable",
-  "chat.chatae2.search.stored_craftable": "%s exist %s, craftable"
+  "chat.chatae2.search.stored_craftable": "%s exist %s, craftable",
+  "chat.chatae2.search.toomore": ",and so on (total %s)",
+  "chat.chatae2.search.nothing": "Nothing Found"
 }
