@@ -26,7 +26,9 @@ public class QueryCommand {
             , false);
             return 0;
         } else {
-            context.getSource().sendFeedback(Text.translatable( "chat.chatae2.grid.failed"), false);
+            context.getSource().sendFeedback(Text.literal(
+                    I18n.Translate(bindKey, "chat.chatae2.grid.failed")
+            ), false);
             return 1;
         }
     }
