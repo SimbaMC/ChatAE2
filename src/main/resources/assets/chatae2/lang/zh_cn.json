@@ -11,6 +11,6 @@
   "chat.chatae2.search.stored": "%s 现存%s",
   "chat.chatae2.search.craftable": "%s 可合成",
   "chat.chatae2.search.stored_craftable": "%s 现存%s,可合成",
-  "chat.chatae2.search.toomore": ",等等 (总计 %s)",
+  "chat.chatae2.search.toomore": ",等其他 (总计%s个)",
   "chat.chatae2.search.nothing": "什么也没有找到呢DAZE~"
 }
