@@ -61,9 +61,12 @@ public class QueryCommand {
                             , false);
                 }
             }
-            return 0;
-        } else {
             return 1;
+        } else {
+            context.getSource().sendFeedback(Text.literal(
+                    I18n.Translate(bindKey, "chat.chatae2.grid.failed")
+            ), false);
+            return 0;
         }
     }
 
