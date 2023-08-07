@@ -9,6 +9,7 @@ import appeng.api.stacks.AEKey;
 import appeng.me.helpers.MachineSource;
 import appeng.me.helpers.PlayerSource;
 import com.mojang.brigadier.context.CommandContext;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -43,7 +44,7 @@ public class CraftCommand {
             return 0;
         }
         Set<AEKey> craftableKey = grid.getCraftingService().getCraftables(
-                what -> I18n.Translate(bindKey, what).contains(craftKey)
+                what -> I18n.Translate(bindKey, what).equals(craftKey)
         );
         if (craftableKey.isEmpty()) {
             commandSource.sendFeedback(Text.literal(
@@ -96,9 +97,19 @@ public class CraftCommand {
                         (config.craftSelectionMode == CpuSelectionMode.PLAYER_ONLY) ? null : craftRequester,
                         null, false, craftSource);
                 @Nullable CraftingSubmitErrorCode errorCode = submitResult.errorCode();
-                if (errorCode != null)
+                if (errorCode != null) {
                     commandSource.sendFeedback(Text.literal(errorCode.toString()), false);
-                return null;
+                    for (Object2LongMap.Entry<AEKey> entry : plan.missingItems()) {
+                        AEKey key = entry.getKey();
+                        long value = entry.getLongValue();
+                        commandSource.sendFeedback(Text.literal(String.format(
+                                I18n.Translate(bindKey, "chat.chatae2.craft.missing"),
+                                value,
+                                I18n.Translate(bindKey, key)
+                        )), false);
+                    }
+                }
+                 return null;
             } catch (InterruptedException | ExecutionException e) {
                 StringWriter stringWriter = new StringWriter();
                 PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -109,6 +120,11 @@ public class CraftCommand {
             }
         });
 
+        commandSource.sendFeedback(Text.literal(String.format(
+                I18n.Translate(bindKey, "chat.chatae2.craft.start"),
+                craftNum,
+                I18n.Translate(bindKey, craftAEKey)
+        )), false);
         return 1;
     }
 

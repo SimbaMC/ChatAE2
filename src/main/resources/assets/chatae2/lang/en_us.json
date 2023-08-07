@@ -13,5 +13,6 @@
   "chat.chatae2.search.stored_craftable": "%s exist %s, craftable",
   "chat.chatae2.search.toomore": ",and more (total %s)",
   "chat.chatae2.search.nothing": "Nothing Found",
-  "chat.chatae2.craft.start": "Start crafting %s %s"
+  "chat.chatae2.craft.start": "Calculating crafting %s %s",
+  "chat.chatae2.craft.missing": "Missing %s %s"
 }
