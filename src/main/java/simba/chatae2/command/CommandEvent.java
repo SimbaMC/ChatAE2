@@ -5,6 +5,7 @@ import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionHost;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
@@ -22,6 +23,9 @@ public class CommandEvent {
     public static final String BIND_KEY = "bindKey";
     public static final String BIND_LANG = "bindLang";
     public static final String SEARCH_KEY = "searchKey";
+    public static final String CRAFT_NUM = "craftNum";
+    public static final String CRAFT_KEY = "searchKey";
+
     public static void InitialCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(
             literal("chatae2")
@@ -49,6 +53,15 @@ public class CommandEvent {
                             .then(argument( SEARCH_KEY,
                                     StringArgumentType.greedyString())
                             .executes(SearchCommand::SearchExecute)
+                            )
+                    )
+                    .then(literal("craft")
+                            .then(argument( CRAFT_NUM,
+                                    IntegerArgumentType.integer(1))
+                                .then(argument( CRAFT_KEY,
+                                        StringArgumentType.greedyString())
+                                        .executes(CraftCommand::CraftExecute)
+                                )
                             )
                     )
                 )

@@ -2,6 +2,7 @@
 package simba.chatae2.config;
 
 
+import appeng.api.config.CpuSelectionMode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
@@ -34,6 +35,16 @@ public class Config {
 
     public int MAX_SEARCH_KEY = 10;
 
+    public CpuSelectionMode getCraftSelectionMode() {
+        return craftSelectionMode;
+    }
+
+    public void setCraftSelectionMode(CpuSelectionMode craftSelectionMode) {
+        this.craftSelectionMode = craftSelectionMode;
+    }
+
+    public CpuSelectionMode craftSelectionMode = CpuSelectionMode.PLAYER_ONLY;
+
     public static Config onStart() {
         Path LanguagePath = FabricLoader.getInstance().getConfigDir().resolve("chatae2/chatae2.json");
         try {
@@ -42,6 +53,7 @@ public class Config {
             Gson gson = new Gson();
             Config config = gson.fromJson(reader, Config.class);
             reader.close();
+            config.save();
             return config;
         } catch (IOException e) {
             StringWriter stringWriter = new StringWriter();
