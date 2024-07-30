@@ -5,8 +5,8 @@ import appeng.api.networking.IGrid;
 import appeng.api.stacks.AEKey;
 import appeng.api.stacks.KeyCounter;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import simba.chatae2.config.I18n;
 
 import java.util.HashSet;
@@ -17,11 +17,11 @@ import static simba.chatae2.ChatAE2.config;
 import static simba.chatae2.command.CommandEvent.*;
 
 public class SearchCommand {
-    public static int SearchExecute(CommandContext<ServerCommandSource> context) {
+    public static int SearchExecute(CommandContext<CommandSourceStack> context) {
         IGrid grid = getGridFromContext(context);
         String bindKey = context.getArgument(BIND_KEY, String.class);
         String searchKey = context.getArgument(SEARCH_KEY, String.class);
-        ServerCommandSource commandSource = context.getSource();
+        CommandSourceStack commandSource = context.getSource();
         if (grid == null) return 0;
         KeyCounter cachedInventory = grid.getStorageService().getCachedInventory();
         Set<AEKey> storedKey = cachedInventory.keySet();
@@ -63,16 +63,16 @@ public class SearchCommand {
         int match = 0;
         for (String name: storedName) {
             if( (match ++) >= config.getMAX_SEARCH_KEY() ){
-                commandSource.sendFeedback(Text.literal(String.format(
+                commandSource.sendSuccess(() -> Component.literal(String.format(
                         I18n.Translate(bindKey, "chat.chatae2.search.toomore"),
                         storedName.size()
                 )), false);
                 return storedName.size();
             }
-            commandSource.sendFeedback(Text.literal(name), false);
+            commandSource.sendSuccess(() -> Component.literal(name), false);
         }
         if (match == 0) {
-            commandSource.sendFeedback(Text.literal(
+            commandSource.sendSuccess(() -> Component.literal(
                     I18n.Translate(bindKey, "chat.chatae2.search.nothing")
             ), false);
         }

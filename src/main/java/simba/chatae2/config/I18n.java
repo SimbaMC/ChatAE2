@@ -4,10 +4,10 @@ package simba.chatae2.config;
 import appeng.api.stacks.AEKey;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.LiteralTextContent;
-import net.minecraft.text.TextContent;
-import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraftforge.fml.loading.FMLPaths;
 import simba.chatae2.ChatAE2;
 import simba.chatae2.mixinInterface.TranslatableTextContentInterface;
 
@@ -23,7 +23,7 @@ public class I18n {
 
     public static Map<String, I18n> I18N_INSTANCE;
     public static void Initial() {
-        File LanguagePath = FabricLoader.getInstance().getConfigDir().resolve("chatae2/lang").toFile();
+        File LanguagePath = FMLPaths.CONFIGDIR.get().resolve("chatae2/lang").toFile();
         I18N_INSTANCE = new HashMap<String, I18n>();
         FilenameFilter jsonFilter = (dir, name) -> {
             String lowercaseName = name.toLowerCase();
@@ -59,15 +59,15 @@ public class I18n {
         String lang = BindData.BindInstance.getLangOrDefault(BindKey);
         try {
             if (I18N_INSTANCE.containsKey(lang)) {
-                TextContent displayName = aeKey.getDisplayName().getContent();
-                if (displayName instanceof TranslatableTextContent) {
-                    String key = ((TranslatableTextContentInterface) (aeKey.getDisplayName().getContent())).getKey();
+                ComponentContents displayName = aeKey.getDisplayName().getContents();
+                if (displayName instanceof TranslatableContents) {
+                    String key = ((TranslatableTextContentInterface) (aeKey.getDisplayName().getContents())).getKey();
                     if (I18N_INSTANCE.get(lang).translation.containsKey(key)) {
                         return I18N_INSTANCE.get(lang).translation.get(key);
                     }
                 }
-                if (displayName instanceof LiteralTextContent) {
-                    String key = ((LiteralTextContent) displayName).string();
+                if (displayName instanceof LiteralContents) {
+                    String key = ((LiteralContents) displayName).text();
                     return I18N_INSTANCE.get(lang).translation.getOrDefault(key, key);
                 }
             }

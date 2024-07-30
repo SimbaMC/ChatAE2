@@ -10,10 +10,10 @@ import appeng.me.helpers.MachineSource;
 import appeng.me.helpers.PlayerSource;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 import simba.chatae2.ChatAE2;
 import simba.chatae2.config.I18n;
@@ -31,14 +31,14 @@ import static simba.chatae2.command.CommandEvent.*;
 
 public class CraftCommand {
 
-    public static int CraftExecute(CommandContext<ServerCommandSource> context) {
+    public static int CraftExecute(CommandContext<CommandSourceStack> context) {
         IGrid grid = getGridFromContext(context);
         String bindKey = context.getArgument(BIND_KEY, String.class);
         String craftKey = context.getArgument(CRAFT_KEY, String.class);
         int craftNum = context.getArgument(CRAFT_NUM, int.class);
-        ServerCommandSource commandSource = context.getSource();
+        CommandSourceStack commandSource = context.getSource();
         if (grid == null) {
-            commandSource.sendFeedback(Text.literal(
+            commandSource.sendSuccess(() -> Component.literal(
                     I18n.Translate(bindKey, "chat.chatae2.grid.failed")
             ), false);
             return 0;
@@ -47,7 +47,7 @@ public class CraftCommand {
                 what -> I18n.Translate(bindKey, what).equals(craftKey)
         );
         if (craftableKey.isEmpty()) {
-            commandSource.sendFeedback(Text.literal(
+            commandSource.sendSuccess(() -> Component.literal(
                     I18n.Translate(bindKey, "chat.chatae2.search.nothing")
             ), false);
             return 0;
@@ -61,30 +61,30 @@ public class CraftCommand {
                         translatedName
                 );
                 if( (match ++) >= config.getMAX_SEARCH_KEY() ){
-                    commandSource.sendFeedback(Text.literal(String.format(
+                    commandSource.sendSuccess(() -> Component.literal(String.format(
                             I18n.Translate(bindKey, "chat.chatae2.search.toomore"),
                             craftableKey.size()
                     )), false);
                     return 0;
                 }
-                commandSource.sendFeedback(Text.literal(printMessage), false);
+                commandSource.sendSuccess(() -> Component.literal(printMessage), false);
             }
         }
 
         assert craftableKey.size() == 1;
         AEKey craftAEKey = craftableKey.iterator().next();
         ICraftingService craftService = grid.getCraftingService();
-        ServerWorld craftWorld = commandSource.getWorld();
+        ServerLevel craftWorld = commandSource.getLevel();
         ICraftingRequester craftRequester = new CraftRequester(grid);
         IActionSource craftSource = (config.craftSelectionMode == CpuSelectionMode.PLAYER_ONLY) ?
                                         new PlayerSource(
-                                                new ServerPlayerEntity(craftWorld.getServer(), craftWorld, ChatAE2.PROFILE, null),
-                                                () -> grid.getPivot()) :
+                                                new ServerPlayer(craftWorld.getServer(), craftWorld, ChatAE2.PROFILE),
+                                                grid::getPivot) :
                                         new MachineSource(craftRequester);
 
 
         Future<ICraftingPlan> craftFuturePlan = craftService.beginCraftingCalculation(
-                commandSource.getWorld(),
+                commandSource.getLevel(),
                 () -> craftSource,
                 craftAEKey,
                 craftNum,
@@ -98,11 +98,11 @@ public class CraftCommand {
                         null, false, craftSource);
                 @Nullable CraftingSubmitErrorCode errorCode = submitResult.errorCode();
                 if (errorCode != null) {
-                    commandSource.sendFeedback(Text.literal(errorCode.toString()), false);
+                    commandSource.sendSuccess(() -> Component.literal(errorCode.toString()), false);
                     for (Object2LongMap.Entry<AEKey> entry : plan.missingItems()) {
                         AEKey key = entry.getKey();
                         long value = entry.getLongValue();
-                        commandSource.sendFeedback(Text.literal(String.format(
+                        commandSource.sendSuccess(() -> Component.literal(String.format(
                                 I18n.Translate(bindKey, "chat.chatae2.craft.missing"),
                                 value,
                                 I18n.Translate(bindKey, key)
@@ -120,7 +120,7 @@ public class CraftCommand {
             }
         });
 
-        commandSource.sendFeedback(Text.literal(String.format(
+        commandSource.sendSuccess(() -> Component.literal(String.format(
                 I18n.Translate(bindKey, "chat.chatae2.craft.start"),
                 craftNum,
                 I18n.Translate(bindKey, craftAEKey)

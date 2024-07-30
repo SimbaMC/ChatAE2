@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: AGPL-3.0 WITH SimbaMC Proxy and SimbaMC Exceptions */
 package simba.chatae2.mixin;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Language;
+import net.minecraft.client.Minecraft;
+import net.minecraft.locale.Language;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,11 +21,11 @@ import java.util.Map;
 @Mixin(value = Language.class, priority = 800)
 public class LanguageExportMixin {
 
-    @Inject(method = "setInstance", at = @At("HEAD"))
+    @Inject(method = "inject", at = @At("HEAD"))
     private static void copyInstance(Language language, CallbackInfo ci) {
         Map<String, String> translation = ((TranslationStorageInterface)language).getStorage();
-        String currentLanguageCode = MinecraftClient.getInstance().getLanguageManager().getLanguage().getCode();
-        Path LanguagePath = FabricLoader.getInstance().getConfigDir().resolve("chatae2/lang/" + currentLanguageCode + ".json");
+        String currentLanguageCode = Minecraft.getInstance().getLanguageManager().getSelected();
+        Path LanguagePath = FMLPaths.CONFIGDIR.get().resolve("chatae2/lang/" + currentLanguageCode + ".json");
         try {
             Files.createDirectories(LanguagePath.getParent());
             BufferedWriter writer = Files.newBufferedWriter(LanguagePath, StandardCharsets.UTF_8);

@@ -6,8 +6,8 @@ import appeng.api.networking.crafting.CraftingJobStatus;
 import appeng.api.networking.crafting.ICraftingCPU;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import simba.chatae2.config.I18n;
 
 import static simba.chatae2.command.CommandEvent.BIND_KEY;
@@ -15,36 +15,36 @@ import static simba.chatae2.command.CommandEvent.getGridFromContext;
 
 public class QueryCommand {
 
-    public static int QueryExecute(CommandContext<ServerCommandSource> context) {
+    public static int QueryExecute(CommandContext<CommandSourceStack> context) {
         IGrid grid = getGridFromContext(context);
         String bindKey = context.getArgument(BIND_KEY, String.class);
         if (grid != null) {
-            context.getSource().sendFeedback(
-                Text.literal( String.format(
+            context.getSource().sendSuccess(
+                    () -> Component.literal( String.format(
                                 I18n.Translate(bindKey, "chat.chatae2.grid.size"),
                                 grid.size()))
             , false);
             return 0;
         } else {
-            context.getSource().sendFeedback(Text.literal(
+            context.getSource().sendSuccess(() -> Component.literal(
                     I18n.Translate(bindKey, "chat.chatae2.grid.failed")
             ), false);
             return 1;
         }
     }
 
-    public static int QueryCPUExecute(CommandContext<ServerCommandSource> context) {
+    public static int QueryCPUExecute(CommandContext<CommandSourceStack> context) {
         IGrid grid = getGridFromContext(context);
         String bindKey = context.getArgument(BIND_KEY, String.class);
-        ServerCommandSource commandSource = context.getSource();
+        CommandSourceStack commandSource = context.getSource();
         if (grid != null) {
             ImmutableSet<ICraftingCPU> cpus = grid.getCraftingService().getCpus();
             for (ICraftingCPU cpu : cpus) {
                 if(cpu.isBusy()) {
                     CraftingJobStatus job = cpu.getJobStatus();
                     assert (job != null);
-                    commandSource.sendFeedback(
-                            Text.literal( String.format(
+                    commandSource.sendSuccess(
+                            () -> Component.literal( String.format(
                                     I18n.Translate(bindKey, "chat.chatae2.cpu.crafting"),
                                     I18n.readableSize(cpu.getAvailableStorage()),
                                     I18n.Translate(bindKey, job.crafting().what()),
@@ -53,8 +53,8 @@ public class QueryCommand {
                             ))
                             , false);
                 } else {
-                    commandSource.sendFeedback(
-                            Text.literal( String.format(
+                    commandSource.sendSuccess(
+                            () -> Component.literal( String.format(
                                     I18n.Translate(bindKey, "chat.chatae2.cpu.idle"),
                                     I18n.readableSize(cpu.getAvailableStorage())
                             ))
@@ -63,7 +63,7 @@ public class QueryCommand {
             }
             return 1;
         } else {
-            context.getSource().sendFeedback(Text.literal(
+            commandSource.sendSuccess(() -> Component.literal(
                     I18n.Translate(bindKey, "chat.chatae2.grid.failed")
             ), false);
             return 0;

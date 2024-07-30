@@ -3,38 +3,34 @@ package simba.chatae2.command;
 
 import appeng.items.tools.powered.WirelessTerminalItem;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import simba.chatae2.config.I18n;
 
-import java.util.OptionalLong;
-
 import static simba.chatae2.command.CommandEvent.BIND_KEY;
+import static simba.chatae2.command.CommandEvent.TAG_ACCESS_POINT_POS;
 import static simba.chatae2.config.BindData.BindInstance;
 
 public class BindCommand {
 
-    public static int BindExecute(CommandContext<ServerCommandSource> context) {
-        if (context.getSource().isExecutedByPlayer()) {
-            ServerPlayerEntity player = context.getSource().getPlayer();
-            ItemStack itemStack = player.getMainHandStack();
+    public static int BindExecute(CommandContext<CommandSourceStack> context) {
+        if (context.getSource().isPlayer()) {
+            ServerPlayer player = context.getSource().getPlayer();
+            ItemStack itemStack = player.getMainHandItem();
             Item item = itemStack.getItem();
             if (item instanceof WirelessTerminalItem) {
-                OptionalLong grid = ((WirelessTerminalItem)item).getGridKey(itemStack);
-                if (grid.isPresent()) {
-                    String bindKey = context.getArgument(BIND_KEY, String.class);
-                    BindInstance.Bind(bindKey, grid.getAsLong());
-                    context.getSource().sendFeedback(Text.literal(I18n.Translate(bindKey,"chat.chatae2.bind.success")), false);
-                    return 1;
-                }
+                String bindKey = context.getArgument(BIND_KEY, String.class);
+                BindInstance.Bind(bindKey, itemStack.getOrCreateTag().get(TAG_ACCESS_POINT_POS));
+                context.getSource().sendSuccess(() -> Component.literal(I18n.Translate(bindKey,"chat.chatae2.bind.success")), false);
+                return 1;
             }
-            context.getSource().sendFeedback(Text.literal(I18n.Translate("","chat.chatae2.bind.failed")), false);
+            context.getSource().sendSuccess(() -> Component.literal(I18n.Translate("","chat.chatae2.bind.failed")), false);
             return 0;
         } else {
-            context.getSource().sendFeedback(Text.literal("Cannot Execute from console"), false);
+            context.getSource().sendSuccess(() -> Component.literal("Cannot Execute from console"), false);
         }
         return 0;
     }

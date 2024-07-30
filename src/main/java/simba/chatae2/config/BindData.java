@@ -1,20 +1,23 @@
 /* SPDX-License-Identifier: AGPL-3.0 WITH SimbaMC Proxy and SimbaMC Exceptions */
 package simba.chatae2.config;
 
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.PersistentState;
-import net.minecraft.world.PersistentStateManager;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.storage.DimensionDataStorage;
+import org.jetbrains.annotations.NotNull;
 import simba.chatae2.ChatAE2;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.OptionalLong;
+import java.util.Optional;
 
-public class BindData extends PersistentState {
+public class BindData extends SavedData {
 
-    public Map<String, Long> Binding;
+    public Map<String, Tag> Binding;
     public Map<String, String> Bind_Language;
 
     private static final String NBT_BIND_KEY = "BIND";
@@ -23,46 +26,46 @@ public class BindData extends PersistentState {
     public static BindData BindInstance;
 
     public BindData() {
-        Binding = new HashMap<String, Long>();
+        Binding = new HashMap<String, Tag>();
         Bind_Language = new HashMap<String, String>();
     }
 
     public static BindData getServerState(MinecraftServer server) {
         // First we get the persistentStateManager for the OVERWORLD
-        PersistentStateManager persistentStateManager = server
-                .getWorld(World.OVERWORLD).getPersistentStateManager();
+        DimensionDataStorage persistentStateManager = server
+                .getLevel(Level.OVERWORLD).getDataStorage();
 
         // Calling this reads the file from the disk if it exists, or creates a new one and saves it to the disk
-        return persistentStateManager.getOrCreate(
+        return persistentStateManager.computeIfAbsent(
                 BindData::createFromNbt,
                 BindData::new,
                 ChatAE2.MODID);
     }
 
-    public void Bind(String BindKey, Long GridKey) {
+    public void Bind(String BindKey, Tag GridKey) {
         this.Binding.put(BindKey, GridKey);
         if(!this.Bind_Language.containsKey(BindKey)) {
             this.Bind_Language.put(BindKey, ChatAE2.config.getGLOBAL_LANGUAGE());
         }
-        this.markDirty();
+        this.setDirty();
     }
 
     public boolean Unbind(String BindKey) {
         if(this.Binding.containsKey(BindKey) || this.Bind_Language.containsKey(BindKey)) {
             this.Binding.remove(BindKey);
             this.Bind_Language.remove(BindKey);
-            this.markDirty();
+            this.setDirty();
             return true;
         } else {
             return false;
         }
     }
 
-    public OptionalLong Query(String BindKey) {
+    public Optional<Tag> Query(String BindKey) {
         if (this.Binding.containsKey(BindKey)) {
-            return OptionalLong.of(this.Binding.get(BindKey));
+            return Optional.of(this.Binding.get(BindKey));
         } else {
-            return OptionalLong.empty();
+            return Optional.empty();
         }
     }
 
@@ -74,30 +77,30 @@ public class BindData extends PersistentState {
         }
     }
 
-    public static BindData createFromNbt(NbtCompound tag) {
+    public static BindData createFromNbt(CompoundTag tag) {
         BindData bindData = new BindData();
         if (tag.contains(NBT_BIND_KEY)) {
-            NbtCompound Bind = tag.getCompound(NBT_BIND_KEY);
-            for (String nbtKey : Bind.getKeys()) {
-                bindData.Binding.put(nbtKey, Bind.getLong(nbtKey));
+            CompoundTag Bind = tag.getCompound(NBT_BIND_KEY);
+            for (String nbtKey : Bind.getAllKeys()) {
+                bindData.Binding.put(nbtKey, Bind.get(nbtKey));
             }
         }
         if (tag.contains(NBT_LANG_KEY)) {
-            NbtCompound Lang = tag.getCompound(NBT_LANG_KEY);
-            for (String nbtKey : Lang.getKeys()) {
+            CompoundTag Lang = tag.getCompound(NBT_LANG_KEY);
+            for (String nbtKey : Lang.getAllKeys()) {
                 bindData.Bind_Language.put(nbtKey, Lang.getString(nbtKey));
             }
         }
         return bindData;
     }
 
-    @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        NbtCompound Bind = new NbtCompound();
-        for(Map.Entry<String, Long> entry : Binding.entrySet()) {
-            Bind.putLong(entry.getKey(), entry.getValue());
+    @Override @MethodsReturnNonnullByDefault
+    public CompoundTag save(@NotNull CompoundTag nbt) {
+        CompoundTag Bind = new CompoundTag();
+        for(Map.Entry<String, Tag> entry : Binding.entrySet()) {
+            Bind.put(entry.getKey(), entry.getValue());
         }
-        NbtCompound Lang = new NbtCompound();
+        CompoundTag Lang = new CompoundTag();
         for(Map.Entry<String, String> entry : Bind_Language.entrySet()) {
             Lang.putString(entry.getKey(), entry.getValue());
         }

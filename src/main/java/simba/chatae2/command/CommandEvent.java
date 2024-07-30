@@ -2,20 +2,22 @@
 package simba.chatae2.command;
 
 import appeng.api.networking.IGrid;
-import appeng.api.networking.IGridNode;
-import appeng.api.networking.security.IActionHost;
+import appeng.items.tools.powered.WirelessTerminalItem;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.OptionalLong;
+import java.util.Optional;
 
-import static appeng.api.features.Locatables.securityStations;
-import static net.minecraft.server.command.CommandManager.literal;
-import static net.minecraft.server.command.CommandManager.argument;
+import static appeng.api.ids.AEItemIds.WIRELESS_TERMINAL;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 import static simba.chatae2.config.BindData.BindInstance;
 
 public class CommandEvent {
@@ -26,7 +28,9 @@ public class CommandEvent {
     public static final String CRAFT_NUM = "craftNum";
     public static final String CRAFT_KEY = "searchKey";
 
-    public static void InitialCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
+    static final String TAG_ACCESS_POINT_POS = "accessPoint";
+
+    public static void InitialCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
             literal("chatae2")
                 .then(argument( BIND_KEY,
@@ -40,7 +44,7 @@ public class CommandEvent {
                     .then(literal("bind")
                         .executes(BindCommand::BindExecute)
                     )
-                    .then(literal("unbind").requires(source -> source.hasPermissionLevel(2))
+                    .then(literal("unbind").requires(source -> source.hasPermission(2))
                             .executes(UnbindCommand::UnbindExecute)
                     )
                     .then(literal("lang")
@@ -65,23 +69,20 @@ public class CommandEvent {
                             )
                     )
                 )
-                .then(literal("list").requires(source -> source.hasPermissionLevel(2))
+                .then(literal("list").requires(source -> source.hasPermission(2))
                     .executes(ListCommand::ListExecute)
                 )
         );
     }
 
-    static @Nullable IGrid getGridFromContext(CommandContext<ServerCommandSource> context) {
-        OptionalLong GridKey = BindInstance.Query(context.getArgument(BIND_KEY, String.class));
+    static @Nullable IGrid getGridFromContext(CommandContext<CommandSourceStack> context) {
+        Optional<Tag> GridKey = BindInstance.Query(context.getArgument(BIND_KEY, String.class));
         if(GridKey.isPresent()) {
-            long key = GridKey.getAsLong();
-            IActionHost securityStation = securityStations().get(context.getSource().getWorld(), key);
-            if (securityStation != null) {
-                IGridNode actionableNode = securityStation.getActionableNode();
-                if (actionableNode != null) {
-                    return actionableNode.getGrid();
-                }
-            }
+            WirelessTerminalItem virtualItem = (WirelessTerminalItem) ForgeRegistries.ITEMS.getValue(WIRELESS_TERMINAL);
+            assert virtualItem != null;
+            ItemStack virtualItemStack = new ItemStack(virtualItem);
+            virtualItemStack.getOrCreateTag().put(TAG_ACCESS_POINT_POS, GridKey.get());
+            return virtualItem.getLinkedGrid(virtualItemStack, context.getSource().getLevel(), null);
         }
         return null;
     }

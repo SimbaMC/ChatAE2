@@ -1,5 +1,6 @@
 plugins {
 	id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+	id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
 	id 'maven-publish'
 	id 'idea'
 }
@@ -79,10 +80,17 @@ minecraft {
 }
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+	annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
 
 	compileOnly fg.deobf("appeng:appliedenergistics2-forge:$aeVersion")
 	runtimeOnly fg.deobf("appeng:appliedenergistics2-forge:$aeVersion")
 	// modCompileOnly "appeng:appliedenergistics2-fabric:$aeVersion:api"
+}
+
+mixin {
+	// MixinGradle 设置
+	add sourceSets.main, 'mixins.chatae2.refmap.json'
+	config 'chatae2.mixins.json'
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
@@ -93,6 +101,7 @@ tasks.named('processResources', ProcessResources).configure {
 			forge_version: forge_version, forge_version_range: forge_version_range,
 			loader_version_range: loader_version_range,
 			mod_id: mod_id, mod_name: mod_name, mod_version: mod_version,
+			mod_description: mod_description,
 	]
 	inputs.properties replaceProperties
 

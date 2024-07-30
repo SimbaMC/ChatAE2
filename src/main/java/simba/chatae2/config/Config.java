@@ -5,7 +5,7 @@ package simba.chatae2.config;
 import appeng.api.config.CpuSelectionMode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraftforge.fml.loading.FMLPaths;
 import simba.chatae2.ChatAE2;
 
 import java.io.*;
@@ -46,7 +46,7 @@ public class Config {
     public CpuSelectionMode craftSelectionMode = CpuSelectionMode.PLAYER_ONLY;
 
     public static Config onStart() {
-        Path LanguagePath = FabricLoader.getInstance().getConfigDir().resolve("chatae2/chatae2.json");
+        Path LanguagePath = FMLPaths.CONFIGDIR.get().resolve("chatae2/chatae2.json");
         try {
             Files.createDirectories(LanguagePath.getParent());
             BufferedReader reader = Files.newBufferedReader(LanguagePath, StandardCharsets.UTF_8);
@@ -68,7 +68,7 @@ public class Config {
     }
 
     public void save() {
-        Path LanguagePath = FabricLoader.getInstance().getConfigDir().resolve("chatae2/chatae2.json");
+        Path LanguagePath = FMLPaths.CONFIGDIR.get().resolve("chatae2/chatae2.json");
         try {
             Files.createDirectories(LanguagePath.getParent());
             BufferedWriter writer = Files.newBufferedWriter(LanguagePath, StandardCharsets.UTF_8);
