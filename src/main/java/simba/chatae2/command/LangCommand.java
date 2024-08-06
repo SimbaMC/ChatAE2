@@ -3,8 +3,11 @@ package simba.chatae2.command;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import simba.chatae2.config.BindData;
+
+import java.util.UUID;
 
 import static simba.chatae2.command.CommandEvent.BIND_KEY;
 import static simba.chatae2.command.CommandEvent.BIND_LANG;
@@ -13,8 +16,10 @@ public class LangCommand {
 
     public static int LangExecute(CommandContext<CommandSourceStack> context) {
         String bindKey = context.getArgument(BIND_KEY, String.class);
-        if(BindData.BindInstance.Bind_Language.containsKey(bindKey)) {
-            BindData.BindInstance.Bind_Language.put(bindKey, context.getArgument(BIND_LANG, String.class));
+        if(BindData.BindInstance.Bind_data.containsKey(bindKey)) {
+            BindData.Tuple3<Tag, UUID, String> keyData = BindData.BindInstance.Bind_data.get(bindKey);
+            keyData.FLang = context.getArgument(BIND_LANG, String.class);
+            BindData.BindInstance.Bind_data.put(bindKey, keyData);
             context.getSource().sendSuccess(() -> Component.translatable("chat.chatae2.bind.success"), false);
             return 1;
         }

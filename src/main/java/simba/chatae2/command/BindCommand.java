@@ -23,7 +23,7 @@ public class BindCommand {
             Item item = itemStack.getItem();
             if (item instanceof WirelessTerminalItem) {
                 String bindKey = context.getArgument(BIND_KEY, String.class);
-                BindInstance.Bind(bindKey, itemStack.getOrCreateTag().get(TAG_ACCESS_POINT_POS));
+                BindInstance.Bind(bindKey, itemStack.getOrCreateTag().get(TAG_ACCESS_POINT_POS), context.getSource().getPlayer().getUUID());
                 context.getSource().sendSuccess(() -> Component.literal(I18n.Translate(bindKey,"chat.chatae2.bind.success")), false);
                 return 1;
             }
