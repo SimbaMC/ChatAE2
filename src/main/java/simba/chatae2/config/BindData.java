@@ -3,6 +3,7 @@ package simba.chatae2.config;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -14,20 +15,30 @@ import simba.chatae2.ChatAE2;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public class BindData extends SavedData {
 
-    public Map<String, Tag> Binding;
-    public Map<String, String> Bind_Language;
+    public Map<String, Tuple3<Tag, UUID, String>> Bind_data;
+    public static class Tuple3<TTag, TUUID, TString> {
+        public TTag FTag;
+        public TUUID FUUID;
+        public TString FLang;
+        Tuple3(TTag FTag, TUUID FUUID, TString FLang) {
+            this.FTag = FTag;
+            this.FUUID = FUUID;
+            this.FLang = FLang;
+        }
+    }
 
     private static final String NBT_BIND_KEY = "BIND";
     private static final String NBT_LANG_KEY = "LANG";
+    private static final String NBT_UUID_KEY = "UUID";
 
     public static BindData BindInstance;
 
     public BindData() {
-        Binding = new HashMap<String, Tag>();
-        Bind_Language = new HashMap<String, String>();
+        Bind_data = new HashMap<>();
     }
 
     public static BindData getServerState(MinecraftServer server) {
@@ -42,18 +53,14 @@ public class BindData extends SavedData {
                 ChatAE2.MODID);
     }
 
-    public void Bind(String BindKey, Tag GridKey) {
-        this.Binding.put(BindKey, GridKey);
-        if(!this.Bind_Language.containsKey(BindKey)) {
-            this.Bind_Language.put(BindKey, ChatAE2.config.getGLOBAL_LANGUAGE());
-        }
+    public void Bind(String BindKey, Tag GridKey, UUID playerUUID) {
+        Bind_data.put(BindKey, new Tuple3<>(GridKey, playerUUID, ChatAE2.config.getGLOBAL_LANGUAGE()));
         this.setDirty();
     }
 
     public boolean Unbind(String BindKey) {
-        if(this.Binding.containsKey(BindKey) || this.Bind_Language.containsKey(BindKey)) {
-            this.Binding.remove(BindKey);
-            this.Bind_Language.remove(BindKey);
+        if(this.Bind_data.containsKey(BindKey)) {
+            this.Bind_data.remove(BindKey);
             this.setDirty();
             return true;
         } else {
@@ -62,16 +69,16 @@ public class BindData extends SavedData {
     }
 
     public Optional<Tag> Query(String BindKey) {
-        if (this.Binding.containsKey(BindKey)) {
-            return Optional.of(this.Binding.get(BindKey));
+        if (this.Bind_data.containsKey(BindKey)) {
+            return Optional.of(this.Bind_data.get(BindKey).FTag);
         } else {
             return Optional.empty();
         }
     }
 
     public String getLangOrDefault(String BindKey) {
-        if (this.Bind_Language.containsKey(BindKey)) {
-            return this.Bind_Language.get(BindKey);
+        if (this.Bind_data.containsKey(BindKey)) {
+            return this.Bind_data.get(BindKey).FLang;
         } else {
             return ChatAE2.config.getGLOBAL_LANGUAGE();
         }
@@ -79,33 +86,37 @@ public class BindData extends SavedData {
 
     public static BindData createFromNbt(CompoundTag tag) {
         BindData bindData = new BindData();
-        if (tag.contains(NBT_BIND_KEY)) {
-            CompoundTag Bind = tag.getCompound(NBT_BIND_KEY);
-            for (String nbtKey : Bind.getAllKeys()) {
-                bindData.Binding.put(nbtKey, Bind.get(nbtKey));
+        for (String nbtKey : tag.getAllKeys()) {
+            CompoundTag keyData = tag.getCompound(nbtKey);
+            Tag Bindtag;
+            UUID BindUUID;
+            String BindLang;
+            if (keyData.contains(NBT_BIND_KEY)) {
+                Bindtag = keyData.get(NBT_BIND_KEY);
+            } else {
+                Bindtag = StringTag.valueOf("");
             }
-        }
-        if (tag.contains(NBT_LANG_KEY)) {
-            CompoundTag Lang = tag.getCompound(NBT_LANG_KEY);
-            for (String nbtKey : Lang.getAllKeys()) {
-                bindData.Bind_Language.put(nbtKey, Lang.getString(nbtKey));
+            BindUUID = keyData.getUUID(NBT_UUID_KEY);
+            if (tag.contains(NBT_LANG_KEY)) {
+                BindLang = keyData.getString(NBT_LANG_KEY);
+            } else {
+                BindLang = ChatAE2.config.getGLOBAL_LANGUAGE();
             }
+            bindData.Bind_data.put(nbtKey, new Tuple3<>(Bindtag, BindUUID, BindLang));
         }
         return bindData;
     }
 
     @Override @MethodsReturnNonnullByDefault
-    public CompoundTag save(@NotNull CompoundTag nbt) {
-        CompoundTag Bind = new CompoundTag();
-        for(Map.Entry<String, Tag> entry : Binding.entrySet()) {
-            Bind.put(entry.getKey(), entry.getValue());
+    public @NotNull CompoundTag save(@NotNull CompoundTag nbt) {
+        for(Map.Entry<String, Tuple3<Tag, UUID, String>> entry : Bind_data.entrySet()) {
+            CompoundTag keyData = new CompoundTag();
+            keyData.put(NBT_BIND_KEY, entry.getValue().FTag);
+            keyData.putUUID(NBT_UUID_KEY, entry.getValue().FUUID);
+            keyData.putString(NBT_LANG_KEY, entry.getValue().FLang);
+            nbt.put(entry.getKey(), keyData);
         }
-        CompoundTag Lang = new CompoundTag();
-        for(Map.Entry<String, String> entry : Bind_Language.entrySet()) {
-            Lang.putString(entry.getKey(), entry.getValue());
-        }
-        nbt.put(NBT_BIND_KEY, Bind);
-        nbt.put(NBT_LANG_KEY, Lang);
         return nbt;
     }
+
 }

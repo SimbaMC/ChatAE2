@@ -1,6 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
+  "refmap": "mixins.chatae2.refmap.json",
   "package": "simba.chatae2.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
