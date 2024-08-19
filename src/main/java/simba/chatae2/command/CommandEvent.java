@@ -35,7 +35,7 @@ public class CommandEvent {
             literal("chatae2")
                 .then(argument( BIND_KEY,
                     StringArgumentType.string())
-                    .then(literal("query")
+                    .then(literal("query").requires(source -> source.hasPermission(2))
                         .executes(QueryCommand::QueryExecute)
                         .then(literal("cpu")
                                 .executes(QueryCommand::QueryCPUExecute)
@@ -53,13 +53,13 @@ public class CommandEvent {
                             .executes(LangCommand::LangExecute)
                             )
                     )
-                    .then(literal("search")
+                    .then(literal("search").requires(source -> source.hasPermission(2))
                             .then(argument( SEARCH_KEY,
                                     StringArgumentType.greedyString())
                             .executes(SearchCommand::SearchExecute)
                             )
                     )
-                    .then(literal("craft")
+                    .then(literal("craft").requires(source -> source.hasPermission(2))
                             .then(argument( CRAFT_NUM,
                                     IntegerArgumentType.integer(1))
                                 .then(argument( CRAFT_KEY,
