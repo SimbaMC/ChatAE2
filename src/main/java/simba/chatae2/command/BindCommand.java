@@ -4,6 +4,7 @@ package simba.chatae2.command;
 import appeng.items.tools.powered.WirelessTerminalItem;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
@@ -23,7 +24,12 @@ public class BindCommand {
             Item item = itemStack.getItem();
             if (item instanceof WirelessTerminalItem) {
                 String bindKey = context.getArgument(BIND_KEY, String.class);
-                BindInstance.Bind(bindKey, itemStack.getOrCreateTag().get(TAG_ACCESS_POINT_POS), context.getSource().getPlayer().getUUID());
+                Tag ACCESS_Tag = itemStack.getOrCreateTag().get(TAG_ACCESS_POINT_POS);
+                if (ACCESS_Tag == null) {
+                    context.getSource().sendSuccess(() -> Component.literal(I18n.Translate("","chat.chatae2.bind.failed")), false);
+                    return 0;
+                }
+                BindInstance.Bind(bindKey, ACCESS_Tag, context.getSource().getPlayer().getUUID());
                 context.getSource().sendSuccess(() -> Component.literal(I18n.Translate(bindKey,"chat.chatae2.bind.success")), false);
                 return 1;
             }
