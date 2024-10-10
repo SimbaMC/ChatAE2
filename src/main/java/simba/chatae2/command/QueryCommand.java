@@ -47,7 +47,7 @@ public class QueryCommand {
                             () -> Component.literal( String.format(
                                     I18n.Translate(bindKey, "chat.chatae2.cpu.crafting"),
                                     I18n.readableSize(cpu.getAvailableStorage()),
-                                    I18n.Translate(bindKey, job.crafting().what()) + ":" + job.crafting().what().getModId(),
+                                    I18n.Translate(bindKey, job.crafting().what()),
                                     I18n.readableSize(job.progress()),
                                     I18n.readableSize(job.totalItems())
                             ))

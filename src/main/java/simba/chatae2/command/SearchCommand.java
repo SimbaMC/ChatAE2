@@ -36,7 +36,7 @@ public class SearchCommand {
                     storedName.add(
                             String.format(
                                     I18n.Translate(bindKey, "chat.chatae2.search.stored_craftable"),
-                                    translatedName,
+                                    translatedName + ":" + key.getModId(),
                                     key.formatAmount(cachedInventory.get(key), SLOT)
                             ));
                     craftableKey.remove(key);
@@ -44,7 +44,7 @@ public class SearchCommand {
                     storedName.add(
                             String.format(
                                     I18n.Translate(bindKey, "chat.chatae2.search.stored"),
-                                    translatedName,
+                                    translatedName + ":" + key.getModId(),
                                     key.formatAmount(cachedInventory.get(key), SLOT)
                             )
                     );
@@ -56,7 +56,7 @@ public class SearchCommand {
             storedName.add(
                     String.format(
                             I18n.Translate(bindKey, "chat.chatae2.search.craftable"),
-                            translatedName
+                            translatedName + ":" + key.getModId()
                     )
             );
         }

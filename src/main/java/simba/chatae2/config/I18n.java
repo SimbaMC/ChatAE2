@@ -5,9 +5,11 @@ import appeng.api.stacks.AEKey;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.LiteralContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraftforge.fml.loading.FMLPaths;
+import org.jetbrains.annotations.NotNull;
 import simba.chatae2.ChatAE2;
 import simba.chatae2.mixinInterface.TranslatableTextContentInterface;
 
@@ -55,21 +57,50 @@ public class I18n {
         }
     }
 
-    public static String Translate(String BindKey, AEKey aeKey) {
+    public static @NotNull String Translate(String BindKey, ComponentContents Content) {
+        String lang = BindData.BindInstance.getLangOrDefault(BindKey);
+        try {
+            if (I18N_INSTANCE.containsKey(lang)) {
+                if (Content instanceof TranslatableContents TranslatableContent) {
+                    if (TranslatableContent.getArgs().length == 0) {
+                        String key = TranslatableContent.getKey();
+                        return I18N_INSTANCE.get(lang).translation.getOrDefault(key, key);
+                    } else {
+                        Object[] args = TranslatableContent.getArgs();
+                        String[] paras = new String[args.length];
+                        for (int i = 0; i < args.length; i++) {
+                            Object argComp = args[i];
+                            if (argComp instanceof MutableComponent) {
+                                paras[i] = Translate(BindKey, ((MutableComponent) argComp).getContents());
+                            } else {
+                                paras[i] = argComp.toString();
+                            }
+                        }
+                        return String.format(Translate(BindKey, TranslatableContent.getKey()), (Object[])paras);
+                    }
+                }
+                if (Content instanceof LiteralContents LiteralContent) {
+                    String key = LiteralContent.text();
+                    return I18N_INSTANCE.get(lang).translation.getOrDefault(key, key);
+                }
+            }
+        } catch ( Exception e ) {
+            ChatAE2.LOGGER.error(e.toString());
+            ChatAE2.LOGGER.warn("Failed to translate TranslatableContents \"{}\" in {}, using {}",
+                    Content.toString(),
+                    lang,
+                    Content.toString()
+            );
+        }
+        return Content.toString();
+    }
+
+    public static @NotNull String Translate(String BindKey, AEKey aeKey) {
         String lang = BindData.BindInstance.getLangOrDefault(BindKey);
         try {
             if (I18N_INSTANCE.containsKey(lang)) {
                 ComponentContents displayName = aeKey.getDisplayName().getContents();
-                if (displayName instanceof TranslatableContents) {
-                    String key = ((TranslatableTextContentInterface) (aeKey.getDisplayName().getContents())).getKey();
-                    if (I18N_INSTANCE.get(lang).translation.containsKey(key)) {
-                        return I18N_INSTANCE.get(lang).translation.get(key);
-                    }
-                }
-                if (displayName instanceof LiteralContents) {
-                    String key = ((LiteralContents) displayName).text();
-                    return I18N_INSTANCE.get(lang).translation.getOrDefault(key, key);
-                }
+                return Translate(BindKey, displayName);
             }
         } catch ( Exception e ) {
             ChatAE2.LOGGER.warn("Failed to translate AEKey \"{}\" in {}, using {}",

@@ -44,7 +44,15 @@ public class CraftCommand {
             return 0;
         }
         Set<AEKey> craftableKey = grid.getCraftingService().getCraftables(
-                what -> I18n.Translate(bindKey, what).equals(craftKey)
+                what -> {
+                    int lastIndex = craftKey.lastIndexOf(':');
+                    if (lastIndex == -1) {
+                        return I18n.Translate(bindKey, what).contains(craftKey);
+                    } else {
+                        return I18n.Translate(bindKey, what).contains(craftKey.substring(0, lastIndex)) &&
+                                    what.getModId().contains(craftKey.substring(lastIndex + 1));
+                    }
+                }
         );
         if (craftableKey.isEmpty()) {
             commandSource.sendSuccess(() -> Component.literal(
@@ -69,6 +77,7 @@ public class CraftCommand {
                 }
                 commandSource.sendSuccess(() -> Component.literal(printMessage), false);
             }
+            return 0;
         }
 
         assert craftableKey.size() == 1;

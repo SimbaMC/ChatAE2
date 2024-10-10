@@ -17,9 +17,7 @@ public class LangCommand {
     public static int LangExecute(CommandContext<CommandSourceStack> context) {
         String bindKey = context.getArgument(BIND_KEY, String.class);
         if(BindData.BindInstance.Bind_data.containsKey(bindKey)) {
-            BindData.Tuple3<Tag, UUID, String> keyData = BindData.BindInstance.Bind_data.get(bindKey);
-            keyData.FLang = context.getArgument(BIND_LANG, String.class);
-            BindData.BindInstance.Bind_data.put(bindKey, keyData);
+            BindData.BindInstance.setLanguage(bindKey, context.getArgument(BIND_LANG, String.class));
             context.getSource().sendSuccess(() -> Component.translatable("chat.chatae2.bind.success"), false);
             return 1;
         }

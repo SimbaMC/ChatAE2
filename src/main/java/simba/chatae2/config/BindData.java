@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static simba.chatae2.command.CommandEvent.BIND_LANG;
+
 public class BindData extends SavedData {
 
     public Map<String, Tuple3<Tag, UUID, String>> Bind_data;
@@ -55,6 +57,13 @@ public class BindData extends SavedData {
 
     public void Bind(String BindKey, Tag GridKey, UUID playerUUID) {
         Bind_data.put(BindKey, new Tuple3<>(GridKey, playerUUID, ChatAE2.config.getGLOBAL_LANGUAGE()));
+        this.setDirty();
+    }
+
+    public void setLanguage(String bindKey, String Lang) {
+        BindData.Tuple3<Tag, UUID, String> keyData = BindData.BindInstance.Bind_data.get(bindKey);
+        keyData.FLang = Lang;
+        this.Bind_data.put(bindKey, keyData);
         this.setDirty();
     }
 
@@ -97,7 +106,7 @@ public class BindData extends SavedData {
                 Bindtag = StringTag.valueOf("");
             }
             BindUUID = keyData.getUUID(NBT_UUID_KEY);
-            if (tag.contains(NBT_LANG_KEY)) {
+            if (keyData.contains(NBT_LANG_KEY)) {
                 BindLang = keyData.getString(NBT_LANG_KEY);
             } else {
                 BindLang = ChatAE2.config.getGLOBAL_LANGUAGE();
