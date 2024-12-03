@@ -17,6 +17,17 @@ import static simba.chatae2.ChatAE2.config;
 import static simba.chatae2.command.CommandEvent.*;
 
 public class SearchCommand {
+
+    public static boolean ContainName(String translatedName, String modid, String searchKey) {
+        int lastIndex = searchKey.lastIndexOf(':');
+        if (lastIndex == -1) {
+            return translatedName.contains(searchKey);
+        } else {
+            return (translatedName.contains(searchKey.substring(0, lastIndex)) &&
+                    modid.contains(searchKey.substring(lastIndex + 1)))
+                    || translatedName.contains(searchKey);
+        }
+    }
     public static int SearchExecute(CommandContext<CommandSourceStack> context) {
         IGrid grid = getGridFromContext(context);
         String bindKey = context.getArgument(BIND_KEY, String.class);
@@ -26,12 +37,12 @@ public class SearchCommand {
         KeyCounter cachedInventory = grid.getStorageService().getCachedInventory();
         Set<AEKey> storedKey = cachedInventory.keySet();
         Set<AEKey> craftableKey = grid.getCraftingService().getCraftables(
-                what -> I18n.Translate(bindKey, what).contains(searchKey)
+                what -> ContainName(I18n.Translate(bindKey, what), what.getModId(), searchKey)
         );
         Set<String> storedName = new HashSet<>();
         for (AEKey key : storedKey) {
             String translatedName = I18n.Translate(bindKey, key);
-            if(translatedName.contains(searchKey)) {
+            if (ContainName(translatedName, key.getModId(), searchKey)) {
                 if(craftableKey.contains(key)) {
                     storedName.add(
                             String.format(

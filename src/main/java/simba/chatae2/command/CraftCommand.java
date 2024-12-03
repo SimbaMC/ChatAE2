@@ -47,10 +47,10 @@ public class CraftCommand {
                 what -> {
                     int lastIndex = craftKey.lastIndexOf(':');
                     if (lastIndex == -1) {
-                        return I18n.Translate(bindKey, what).contains(craftKey);
+                        return I18n.Translate(bindKey, what).equals(craftKey);
                     } else {
-                        return I18n.Translate(bindKey, what).contains(craftKey.substring(0, lastIndex)) &&
-                                    what.getModId().contains(craftKey.substring(lastIndex + 1));
+                        return I18n.Translate(bindKey, what).equals(craftKey.substring(0, lastIndex)) &&
+                                    what.getModId().equals(craftKey.substring(lastIndex + 1));
                     }
                 }
         );
